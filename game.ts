@@ -1,5 +1,5 @@
-const WIDTH = 600;
-const HEIGHT = 600;
+const WIDTH = 420;
+const HEIGHT = 420;
 const FPS = 30;
 
 var field : HTMLElement;
@@ -16,11 +16,12 @@ function init() {
     canvas.height = HEIGHT;
     field.appendChild(canvas);
 
-    map = new Map(canvas, WIDTH, HEIGHT);
-    enemy = new Enemy(canvas, map);
-    player = new Player(canvas, map);
-
     keyController = new KeyController();
+
+    map = new Map(canvas);
+    enemy = new Enemy(canvas, map);
+    player = new Player(canvas, map, keyController);
+    map.setCharacter(player, enemy);
 }
 
 function draw() {
@@ -31,7 +32,7 @@ function draw() {
 
 function update() {
     enemy.update();
-    player.update(keyController);
+    player.update();
     draw();
     setTimeout(update, 1000 / FPS);
 }
