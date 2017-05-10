@@ -1,15 +1,19 @@
 class Map extends Base {
+    public fps: number;
     public color: string;
     public player: Player;
     public enemy: Enemy;
     public blocks: Block[];
+    public bombs: Bomb[];
     
-    constructor (canvas: HTMLCanvasElement) {
+    constructor (canvas: HTMLCanvasElement, fps: number) {
         var pos = new Pos(0, 0);
         var size = new Size(canvas.width, canvas.height);
         super(pos, size, true, canvas);
+        this.fps = fps;
         this.color = "#0c0";
         this.makeBlocks();
+        this.bombs = [];
     }
 
     private makeBlocks() {
@@ -41,7 +45,14 @@ class Map extends Base {
         this.enemy = enemy;
     }
     
-    public update() {}
+    public update() {
+        for (var i = 0; i < this.bombs.length; i++) {
+            this.bombs[i].update();
+            if (this.bombs[i].end) {
+                this.bombs.splice(i, 1);
+            }
+        }
+    }
 
     public draw() {
         const ctx = this.canvas.getContext("2d");
@@ -50,8 +61,12 @@ class Map extends Base {
         ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);
         ctx.fill();
 
-        for (var num in this.blocks) {
-            this.blocks[num].draw();
+        for (var i = 0; i < this.blocks.length; i++) {
+            this.blocks[i].draw();
+        }
+
+        for (var i = 0; i < this.bombs.length; i++) {
+            this.bombs[i].draw();
         }
     }
 
@@ -63,11 +78,37 @@ class Map extends Base {
         after.y = Math.min(after.y, this.pos.y + this.size.height - target.size.height);
 
         var ret = new Pos(after.x - target.pos.x, after.y - target.pos.y);
-        for (var num in this.blocks) {
-            ret = this.blocks[num].checkAdd(target, ret);
+        for (var i = 0; i < this.blocks.length; i++) {
+            ret = this.blocks[i].checkAdd(target, ret);
+        }
+        for (var i = 0; i < this.bombs.length; i++) {
+            ret = this.bombs[i].checkAdd(target, ret);
         }
 
         return ret;
+    }
+
+    public setBomb(character: Character): boolean {
+        var x = Math.round(character.pos.x / character.size.width) * character.size.width;
+        var y = Math.round(character.pos.y / character.size.height) * character.size.height;
+        var pos = new Pos(x, y);
+        var size = new Size(character.size.width, character.size.height);
+        var bomb = new Bomb(pos, size, 3 * this.fps, this.canvas, this);
+        
+        for (var i = 0; i < this.blocks.length; i++) {
+            if (this.blocks[i].isHit(bomb)) {
+                return false;
+            }
+        }
+
+        for (var i = 0; i < this.bombs.length; i++) {
+            if (this.bombs[i].isHit(bomb)) {
+                return false;
+            }
+        }
+
+        this.bombs.push(bomb);
+        return true;
     }
 }
 

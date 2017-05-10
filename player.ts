@@ -9,7 +9,14 @@ class Player extends Character {
     }
 
     public update() {
+        this.setBomb();
         this.move();
+    }
+
+    public setBomb() {
+        if (this.keyController.space) {
+            this.map.setBomb(this);
+        }
     }
 
     public move() {

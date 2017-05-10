@@ -18,7 +18,7 @@ function init() {
 
     keyController = new KeyController();
 
-    map = new Map(canvas);
+    map = new Map(canvas, FPS);
     enemy = new Enemy(canvas, map);
     player = new Player(canvas, map, keyController);
     map.setCharacter(player, enemy);
@@ -31,6 +31,7 @@ function draw() {
 }
 
 function update() {
+    map.update();
     enemy.update();
     player.update();
     draw();
