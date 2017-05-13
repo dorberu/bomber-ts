@@ -2,12 +2,10 @@ const WIDTH = 420;
 const HEIGHT = 420;
 const FPS = 30;
 
-var field : HTMLElement;
-var canvas : HTMLCanvasElement;
+var field: HTMLElement;
+var canvas: HTMLCanvasElement;
 
-var map : Map;
-var player : Player;
-var enemy : Enemy;
+var room: BattleRoom;
 
 function init() {
     field = document.getElementById('field');
@@ -17,25 +15,18 @@ function init() {
     field.appendChild(canvas);
 
     keyController = new KeyController();
-
-    map = new Map(canvas, FPS);
-    enemy = new Enemy(canvas, map);
-    player = new Player(canvas, map, keyController);
-    map.setCharacter(player, enemy);
-}
-
-function draw() {
-    map.draw();
-    enemy.draw();
-    player.draw();
+    room = new BattleRoom(canvas);
+    room.init();
 }
 
 function update() {
-    map.update();
-    enemy.update();
-    player.update();
+    this.room.update();
     draw();
     setTimeout(update, 1000 / FPS);
+}
+
+function draw() {
+    this.room.draw();
 }
 
 window.onload = function() {

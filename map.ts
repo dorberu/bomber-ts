@@ -1,23 +1,24 @@
 class Map extends Base {
-    public fps: number;
     public color: string;
-    public player: Player;
-    public enemy: Enemy;
+    public room: BattleRoom;
     public blocks: Block[];
     public bombs: Bomb[];
     
-    constructor (canvas: HTMLCanvasElement, fps: number) {
+    constructor (room: BattleRoom) {
         var pos = new Pos(0, 0);
-        var size = new Size(canvas.width, canvas.height);
+        var size = new Size(room.canvas.width, room.canvas.height);
         super(pos, size, true, canvas);
-        this.fps = fps;
         this.color = "#0c0";
-        this.makeBlocks();
+        this.room = room;
+        this.blocks = [];
         this.bombs = [];
     }
 
+    public init() {
+        this.makeBlocks();
+    }
+
     private makeBlocks() {
-        this.blocks = [];
         var size = new Size(20, 20);
         for (var i = 0; i < this.size.width / size.width; i++) {
             this.blocks.push(new Block(new Pos(i * size.width, 0), size, this.canvas));
@@ -38,11 +39,6 @@ class Map extends Base {
                 }
             }
         }
-    }
-
-    public setCharacter(player: Player, enemy: Enemy) {
-        this.player = player;
-        this.enemy = enemy;
     }
     
     public update() {
@@ -93,7 +89,7 @@ class Map extends Base {
         var y = Math.round(character.pos.y / character.size.height) * character.size.height;
         var pos = new Pos(x, y);
         var size = new Size(character.size.width, character.size.height);
-        var bomb = new Bomb(pos, size, 3 * this.fps, this.canvas, this);
+        var bomb = new Bomb(pos, size, 3 * FPS, this.canvas, this);
         
         for (var i = 0; i < this.blocks.length; i++) {
             if (this.blocks[i].isHit(bomb)) {

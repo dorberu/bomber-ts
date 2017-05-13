@@ -1,8 +1,12 @@
 class Enemy extends Character {
-    constructor(canvas: HTMLCanvasElement, map: Map) {
+    constructor(room: BattleRoom) {
         var size = new Size(20, 20);
-        var pos = new Pos(canvas.width - size.width * 2, canvas.height - size.height * 2);
-        super(pos, size, canvas, map, "#f00");
+        var pos = new Pos(0, 0);
+        super(pos, size, room, "#f00");
+    }
+
+    public init() {
+        this.pos = new Pos(this.canvas.width - this.size.width * 2, this.canvas.height - this.size.height * 2);
     }
 
     public update() {
@@ -16,8 +20,8 @@ class Enemy extends Character {
         add.x += (Math.random() < 0.1) ? this.speed : 0;
         add.y += (Math.random() < 0.1) ? this.speed : 0;
 
-        add = this.map.checkAdd(this, add);
-        add = this.map.player.checkAdd(this, add);
+        add = this.room.map.checkAdd(this, add);
+        add = this.room.player.checkAdd(this, add);
         this.pos.x += add.x;
         this.pos.y += add.y;
     }

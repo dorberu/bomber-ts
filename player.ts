@@ -1,22 +1,20 @@
 class Player extends Character {
     private keyController : KeyController;
 
-    constructor(canvas: HTMLCanvasElement, map: Map, keyController : KeyController) {
+    constructor(room: BattleRoom, keyController : KeyController) {
         var size = new Size(20, 20);
-        var pos = new Pos(size.width, size.height);
-        super(pos, size, canvas, map, "#00f");
+        var pos = new Pos(0, 0);
+        super(pos, size, room, "#00f");
         this.keyController = keyController;
+    }
+
+    public init() {
+        this.pos = new Pos(this.size.width, this.size.height);
     }
 
     public update() {
         this.setBomb();
         this.move();
-    }
-
-    public setBomb() {
-        if (this.keyController.space) {
-            this.map.setBomb(this);
-        }
     }
 
     public move() {
@@ -26,9 +24,15 @@ class Player extends Character {
         add.x += (this.keyController.right) ? this.speed : 0;
         add.y += (this.keyController.down) ? this.speed : 0;
 
-        add = this.map.checkAdd(this, add);
-        add = this.map.enemy.checkAdd(this, add);
+        add = this.room.map.checkAdd(this, add);
+        add = this.room.enemy.checkAdd(this, add);
         this.pos.x += add.x;
         this.pos.y += add.y;
+    }
+
+    public setBomb() {
+        if (this.keyController.space) {
+            this.room.map.setBomb(this);
+        }
     }
 }

@@ -1,12 +1,12 @@
 abstract class Character extends Base {
-    public map: Map;
+    public room: BattleRoom;
     public life: number;
     public speed: number;
     public color: string;
 
-    constructor(pos: Pos, size: Size, canvas: HTMLCanvasElement, map: Map, color: string) {
-        super(pos, size, true, canvas);
-        this.map = map;
+    constructor(pos: Pos, size: Size, room: BattleRoom, color: string) {
+        super(pos, size, true, room.canvas);
+        this.room = room;
         this.color = color;
         this.life = 1;
         this.speed = 5;
