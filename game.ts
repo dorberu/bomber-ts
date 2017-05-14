@@ -1,5 +1,3 @@
-const WIDTH = 420;
-const HEIGHT = 420;
 const FPS = 30;
 
 var field: HTMLElement;
@@ -10,8 +8,9 @@ var room: BattleRoom;
 function init() {
     field = document.getElementById('field');
     canvas = document.createElement("canvas");
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
+    var size = Math.min(window.innerWidth, window.innerHeight) * 0.98;
+    canvas.width = size;
+    canvas.height = size;
     field.appendChild(canvas);
 
     keyController = new KeyController();

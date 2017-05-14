@@ -7,8 +7,7 @@ class Bomb extends Base {
     public fires: Fire[];
 
     constructor(pos: Pos, rest: number, room: BattleRoom) {
-        var size = new Size(20, 20);
-        super(pos, size, true, room.canvas);
+        super(pos, room.map.blockSize, true, room.canvas);
         this.color = "#000";
         this.room = room;
         this.rest = rest;
@@ -35,39 +34,25 @@ class Bomb extends Base {
         else {
             this.rest = Math.max(this.rest - 1, 0);
             if (this.rest <= 0) {
-                var map = this.room.map;
-                var size = new Size(20, 20);
-
-                for (var i = -this.power; i <= this.power; i++) {
-                    var pos = new Pos(this.pos.x + size.width * i, this.pos.y);
-                    var fire = new Fire(pos, size, 1 * FPS, this.room);
-
-                    if (fire.pos.x < 0 || fire.pos.x + fire.size.width > map.pos.x + map.size.width) {
-                        continue;
-                    }
-                    if (map.isHitBlock(fire)) {
-                        continue;
-                    }
-                    
-                    this.fires.push(fire);
+                for (var l = 1; l <= this.power; l++) {
+                    var pos = new Pos(this.pos.x - this.room.map.blockSize.width * l, this.pos.y);
+                    if (!this.setFire(pos)) break;
+                }
+                for (var u = 1; u <= this.power; u++) {
+                    var pos = new Pos(this.pos.x, this.pos.y - this.room.map.blockSize.height * u);
+                    if (!this.setFire(pos)) break;
+                }
+                for (var r = 1; r <= this.power; r++) {
+                    var pos = new Pos(this.pos.x + this.room.map.blockSize.width * r, this.pos.y);
+                    if (!this.setFire(pos)) break;
+                }
+                for (var d = 1; d <= this.power; d++) {
+                    var pos = new Pos(this.pos.x, this.pos.y + this.room.map.blockSize.height * d);
+                    if (!this.setFire(pos)) break;
                 }
 
-                for (var j = -this.power; j <= this.power; j++) {
-                    var pos = new Pos(this.pos.x, this.pos.y + size.height * j);
-                    var fire = new Fire(pos, size, FPS, this.room);
-
-                    if (fire.pos.y < 0 || fire.pos.y + fire.size.height > map.pos.y + map.size.height) {
-                        continue;
-                    }
-                    if (fire.pos.y == this.pos.y) {
-                        continue;
-                    }
-                    if (map.isHitBlock(fire)) {
-                        continue;
-                    }
-                    
-                    this.fires.push(fire);
-                }
+                var pos = new Pos(this.pos.x, this.pos.y);
+                this.setFire(pos);
             }
         }
     }
@@ -88,6 +73,15 @@ class Bomb extends Base {
             ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);
             ctx.fill();
         }
+    }
+
+    public setFire(pos: Pos): boolean {
+        var fire = new Fire(pos, this.room.map.blockSize, FPS, this.room);
+        if (this.room.map.isHitBlock(fire)) {
+            return false;
+        }
+        this.fires.push(fire);
+        return true;
     }
 
     public isFire() {

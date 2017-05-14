@@ -1,15 +1,22 @@
 class Map extends Base {
+    public static BLOCK_NUM = 21;
+
     public color: string;
     public room: BattleRoom;
+    public blockSize: Size;
     public blocks: Block[];
     public bombs: Bomb[];
     
     constructor (room: BattleRoom) {
         var pos = new Pos(0, 0);
-        var size = new Size(room.canvas.width, room.canvas.height);
+        var width = Math.floor(room.canvas.width / Map.BLOCK_NUM) * Map.BLOCK_NUM;
+        var height = Math.floor(room.canvas.height / Map.BLOCK_NUM) * Map.BLOCK_NUM;
+        var size = new Size(width, height);
+
         super(pos, size, true, canvas);
         this.color = "#0c0";
         this.room = room;
+        this.blockSize = new Size(this.size.width / Map.BLOCK_NUM, this.size.height / Map.BLOCK_NUM);
         this.blocks = [];
         this.bombs = [];
     }
@@ -19,23 +26,22 @@ class Map extends Base {
     }
 
     private makeBlocks() {
-        var size = new Size(20, 20);
-        for (var i = 0; i < this.size.width / size.width; i++) {
-            this.blocks.push(new Block(new Pos(i * size.width, 0), size, this.canvas));
-            this.blocks.push(new Block(new Pos(i * size.width, this.size.height - size.height), size, this.canvas));
+        for (var i = 0; i < Map.BLOCK_NUM; i++) {
+            this.blocks.push(new Block(new Pos(i * this.blockSize.width, 0), this));
+            this.blocks.push(new Block(new Pos(i * this.blockSize.width, this.size.height - this.blockSize.height), this));
 
-            if (i == 0 || i == this.size.width / size.width - 1) {
+            if (i == 0 || i == Map.BLOCK_NUM - 1) {
                 continue;
             }
-            this.blocks.push(new Block(new Pos(0, i * size.height), size, this.canvas));
-            this.blocks.push(new Block(new Pos(this.size.width - size.width, i * size.height), size, this.canvas));
+            this.blocks.push(new Block(new Pos(0, i * this.blockSize.width), this));
+            this.blocks.push(new Block(new Pos(this.size.width - this.blockSize.width, i * this.blockSize.height), this));
 
             if (i % 2 == 1) {
                 continue;
             }
-            for (var j = 1; j < this.size.height / size.height - 1; j++) {
+            for (var j = 1; j < Map.BLOCK_NUM - 1; j++) {
                 if (j % 2 == 0) {
-                    this.blocks.push(new Block(new Pos(i * size.width, j * size.height), size, this.canvas));
+                    this.blocks.push(new Block(new Pos(i * this.blockSize.width, j * this.blockSize.height), this));
                 }
             }
         }
@@ -127,8 +133,8 @@ class Map extends Base {
 class Block extends Base {
     public color: string;
 
-    constructor(pos: Pos, size: Size, canvas: HTMLCanvasElement) {
-        super(pos, size, true, canvas);
+    constructor(pos: Pos, map: Map) {
+        super(pos, map.blockSize, true, map.canvas);
         this.color = "#999";
     }
     
