@@ -36,10 +36,6 @@ abstract class Base {
     abstract draw(): void;
 
     public isHit(target: Base): boolean {
-        if (!this.colFlag || !target.colFlag) {
-            return false;
-        }
-
         if (Math.abs(this.pos.x - target.pos.x) < this.size.width / 2 + target.size.width / 2
             && Math.abs(this.pos.y - target.pos.y) < this.size.height / 2 + target.size.height / 2) {
             return true;

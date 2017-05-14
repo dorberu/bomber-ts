@@ -2,7 +2,7 @@ class Enemy extends Character {
     constructor(room: BattleRoom) {
         var size = new Size(20, 20);
         var pos = new Pos(0, 0);
-        super(pos, size, room, "#f00");
+        super(pos, size, room, "#f0f");
     }
 
     public init() {

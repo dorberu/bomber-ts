@@ -18,5 +18,13 @@ abstract class Character extends Base {
         ctx.fillStyle = this.color;
         ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);
         ctx.fill();
+
+        if (this.life < 1) {
+            ctx.beginPath();
+            ctx.fillStyle = "#f00";
+            var resize = this.size.height / 3;
+            ctx.rect(this.pos.x, this.pos.y + resize, this.size.width, resize);
+            ctx.fill();
+        }
     }
 }

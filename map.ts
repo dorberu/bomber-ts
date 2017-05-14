@@ -44,7 +44,7 @@ class Map extends Base {
     public update() {
         for (var i = 0; i < this.bombs.length; i++) {
             this.bombs[i].update();
-            if (this.bombs[i].end) {
+            if (this.bombs[i].isKill) {
                 this.bombs.splice(i, 1);
             }
         }
@@ -60,10 +60,37 @@ class Map extends Base {
         for (var i = 0; i < this.blocks.length; i++) {
             this.blocks[i].draw();
         }
-
         for (var i = 0; i < this.bombs.length; i++) {
             this.bombs[i].draw();
         }
+    }
+
+    public isHitBlock(target: Base) {
+        for (var i = 0; i < this.blocks.length; i++) {
+            if (this.blocks[i].isHit(target)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public isHitBomb(target: Base) {
+        for (var i = 0; i < this.bombs.length; i++) {
+            if (this.bombs[i].isHit(target)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public isHit(target: Base) {
+        if (this.isHitBlock(target) || this.isHitBomb(target)) {
+            return true;
+        }
+
+        return false;
     }
 
     public checkAdd(target: Base, add: Pos): Pos {
@@ -84,27 +111,16 @@ class Map extends Base {
         return ret;
     }
 
-    public setBomb(character: Character): boolean {
+    public setBomb(character: Character) {
         var x = Math.round(character.pos.x / character.size.width) * character.size.width;
         var y = Math.round(character.pos.y / character.size.height) * character.size.height;
         var pos = new Pos(x, y);
         var size = new Size(character.size.width, character.size.height);
-        var bomb = new Bomb(pos, size, 3 * FPS, this.canvas, this);
+        var bomb = new Bomb(pos, 3 * FPS, this.room);
         
-        for (var i = 0; i < this.blocks.length; i++) {
-            if (this.blocks[i].isHit(bomb)) {
-                return false;
-            }
+        if (!this.isHit(bomb)) {
+            this.bombs.push(bomb);
         }
-
-        for (var i = 0; i < this.bombs.length; i++) {
-            if (this.bombs[i].isHit(bomb)) {
-                return false;
-            }
-        }
-
-        this.bombs.push(bomb);
-        return true;
     }
 }
 
