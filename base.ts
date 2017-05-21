@@ -6,6 +6,10 @@ class Pos {
         this.x = x;
         this.y = y;
     }
+
+    public getIntArray(): number[] {
+        return [ this.x, this.y ];
+    }
 }
 
 class Size {
@@ -17,19 +21,20 @@ class Size {
         this.height = height;
     }
 
+    public getIntArray(): number[] {
+        return [ this.width, this.height ];
+    }
 }
 
 abstract class Base {
     public pos: Pos;
     public size: Size;
     public colFlag;
-    public canvas;
     
-    constructor(pos: Pos, size: Size, colFlag: boolean, canvas: HTMLCanvasElement) {
+    constructor(pos: Pos, size: Size, colFlag: boolean) {
         this.pos = pos;
         this.size = size;
         this.colFlag = colFlag;
-        this.canvas = canvas;
     }
 
     abstract update(): void;

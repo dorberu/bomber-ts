@@ -14,18 +14,17 @@ function init() {
     field.appendChild(canvas);
 
     keyController = new KeyController();
-    room = new BattleRoom(canvas);
-    room.init();
+    room = new BattleRoom();
 }
 
 function update() {
-    this.room.update();
+    room.update();
     draw();
     setTimeout(update, 1000 / FPS);
 }
 
 function draw() {
-    this.room.draw();
+    room.draw();
 }
 
 window.onload = function() {

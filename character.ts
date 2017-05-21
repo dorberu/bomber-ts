@@ -1,18 +1,28 @@
 abstract class Character extends Base {
     public room: BattleRoom;
+    public id: number;
+    public phase: number;
     public life: number;
     public speed: number;
     public color: string;
 
-    constructor(room: BattleRoom) {
-        super(new Pos(0, 0), room.map.blockSize, true, room.canvas);
+    public static PHASE_INIT = 1;
+    public static PHASE_PLAY = 2;
+    public static PHASE_CPU = 3;
+    public static PHASE_DEAD = 4;
+    public static PHASE_LOGOUT = 5;
+
+    constructor(room: BattleRoom, id: number, pos: Pos) {
+        super(pos, room.map.blockSize, true);
         this.room = room;
+        this.id = id;
+        this.phase = Character.PHASE_INIT;
         this.life = 1;
         this.speed = room.map.blockSize.width / 4;
     }
 
     public draw() {
-        const ctx = this.canvas.getContext("2d");
+        const ctx = canvas.getContext("2d");
         ctx.beginPath();
         ctx.fillStyle = this.color;
         ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);
@@ -29,16 +39,10 @@ abstract class Character extends Base {
 }
 
 class Player extends Character {
-    private keyController : KeyController;
-
-    constructor(room: BattleRoom, keyController : KeyController) {
-        super(room);
+    constructor(room: BattleRoom, id: number, pos: Pos) {
+        super(room, id, pos);
         this.color = "#00f";
-        this.keyController = keyController;
-    }
-
-    public init() {
-        this.pos = new Pos(this.room.map.blockSize.width, this.room.map.blockSize.height);
+        this.phase = Character.PHASE_PLAY;
     }
 
     public update() {
@@ -48,34 +52,37 @@ class Player extends Character {
 
     public move() {
         var add = new Pos(0, 0);
-        add.x -= (this.keyController.left) ? this.speed : 0;
-        add.y -= (this.keyController.up) ? this.speed : 0;
-        add.x += (this.keyController.right) ? this.speed : 0;
-        add.y += (this.keyController.down) ? this.speed : 0;
+        add.x -= (keyController.left) ? this.speed : 0;
+        add.y -= (keyController.up) ? this.speed : 0;
+        add.x += (keyController.right) ? this.speed : 0;
+        add.y += (keyController.down) ? this.speed : 0;
 
         add = this.room.map.checkAdd(this, add);
-        add = this.room.enemy.checkAdd(this, add);
+        for (var i = 0; i < this.room.enemies.length; i++) {
+            add = this.room.enemies[i].checkAdd(this, add);
+        }
         this.pos.x += add.x;
         this.pos.y += add.y;
+
+        var packet = new MovePacket(this.room.wsc, this.room);
+        packet.send(this.pos, add);
     }
 
     public setBomb() {
-        if (this.keyController.space) {
+        if (keyController.space) {
             this.room.map.setBomb(this);
         }
     }
 }
 
 class Enemy extends Character {
-    constructor(room: BattleRoom) {
-        super(room);
-        this.color = "#f0f";
-    }
+    public currentAdd: Pos;
 
-    public init() {
-        var x = this.room.map.blockSize.width * (Map.BLOCK_NUM - 2);
-        var y = this.room.map.blockSize.height * (Map.BLOCK_NUM - 2);
-        this.pos = new Pos(x, y);
+    constructor(room: BattleRoom, id: number, pos: Pos) {
+        super(room, id, pos);
+        this.color = "#f0f";
+        this.currentAdd = new Pos(0, 0);
+        this.phase = Character.PHASE_PLAY;
     }
 
     public update() {
@@ -83,15 +90,15 @@ class Enemy extends Character {
     }
 
     public move() {
-        var add = new Pos(0, 0);
-        add.x -= (Math.random() < 0.1) ? this.speed : 0;
-        add.y -= (Math.random() < 0.1) ? this.speed : 0;
-        add.x += (Math.random() < 0.1) ? this.speed : 0;
-        add.y += (Math.random() < 0.1) ? this.speed : 0;
-
+        var add = new Pos(this.currentAdd.x, this.currentAdd.y);
         add = this.room.map.checkAdd(this, add);
         add = this.room.player.checkAdd(this, add);
         this.pos.x += add.x;
         this.pos.y += add.y;
+    }
+
+    public reload(pos: Pos, add: Pos) {
+        this.pos = pos;
+        this.currentAdd = add;
     }
 }

@@ -7,7 +7,7 @@ class Bomb extends Base {
     public fires: Fire[];
 
     constructor(pos: Pos, rest: number, room: BattleRoom) {
-        super(pos, room.map.blockSize, true, room.canvas);
+        super(pos, room.map.blockSize, true);
         this.color = "#000";
         this.room = room;
         this.rest = rest;
@@ -67,7 +67,7 @@ class Bomb extends Base {
             }
         }
         else {
-            const ctx = this.canvas.getContext("2d");
+            const ctx = canvas.getContext("2d");
             ctx.beginPath();
             ctx.fillStyle = this.color;
             ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);
@@ -99,7 +99,7 @@ class Fire extends Base {
     public color: string;
 
     constructor(pos: Pos, size: Size, rest: number, room: BattleRoom) {
-        super(pos, size, false, room.canvas);
+        super(pos, size, false);
         this.room = room;
         this.rest = rest;
         this.isKill = false;
@@ -115,8 +115,10 @@ class Fire extends Base {
             if (this.rest <= 0) {
                 this.isKill = true;
             }
-            if (this.isHit(this.room.enemy)) {
-                this.room.enemy.life = Math.max(--this.room.enemy.life, 0);
+            for (var i = 0; i < this.room.enemies.length; i++) {
+                if (this.isHit(this.room.enemies[i])) {
+                    this.room.enemies[i].life = Math.max(--this.room.enemies[i].life, 0);
+                }
             }
             if (this.isHit(this.room.player)) {
                 this.room.player.life = Math.max(--this.room.player.life, 0);
@@ -129,7 +131,7 @@ class Fire extends Base {
             return;
         }
 
-        const ctx = this.canvas.getContext("2d");
+        const ctx = canvas.getContext("2d");
         ctx.beginPath();
         ctx.fillStyle = this.color;
         ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);

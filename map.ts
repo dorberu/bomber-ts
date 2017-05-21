@@ -1,50 +1,49 @@
 class Map extends Base {
-    public static BLOCK_NUM = 21;
-
     public color: string;
     public room: BattleRoom;
+    public baseBlockSize: Size;
     public blockSize: Size;
+    public blockNum: Size;
     public blocks: Block[];
     public bombs: Bomb[];
     
-    constructor (room: BattleRoom) {
+    constructor (room: BattleRoom, baseBlockSize: Size, blockNum: Size, mapInfo: number[][]) {
         var pos = new Pos(0, 0);
-        var width = Math.floor(room.canvas.width / Map.BLOCK_NUM) * Map.BLOCK_NUM;
-        var height = Math.floor(room.canvas.height / Map.BLOCK_NUM) * Map.BLOCK_NUM;
+        var width = Math.floor(canvas.width / blockNum.width) * blockNum.width;
+        var height = Math.floor(canvas.height / blockNum.height) * blockNum.height;
         var size = new Size(width, height);
-
-        super(pos, size, true, canvas);
+        super(pos, size, true);
+        
         this.color = "#0c0";
         this.room = room;
-        this.blockSize = new Size(this.size.width / Map.BLOCK_NUM, this.size.height / Map.BLOCK_NUM);
-        this.blocks = [];
+        this.baseBlockSize = baseBlockSize;
+        this.blockSize = new Size(this.size.width / blockNum.width, this.size.height / blockNum.height);
+        this.blockNum = blockNum;
+        this.setBlocks(mapInfo);
         this.bombs = [];
     }
 
-    public init() {
-        this.makeBlocks();
-    }
-
-    private makeBlocks() {
-        for (var i = 0; i < Map.BLOCK_NUM; i++) {
-            this.blocks.push(new Block(new Pos(i * this.blockSize.width, 0), this));
-            this.blocks.push(new Block(new Pos(i * this.blockSize.width, this.size.height - this.blockSize.height), this));
-
-            if (i == 0 || i == Map.BLOCK_NUM - 1) {
-                continue;
-            }
-            this.blocks.push(new Block(new Pos(0, i * this.blockSize.width), this));
-            this.blocks.push(new Block(new Pos(this.size.width - this.blockSize.width, i * this.blockSize.height), this));
-
-            if (i % 2 == 1) {
-                continue;
-            }
-            for (var j = 1; j < Map.BLOCK_NUM - 1; j++) {
-                if (j % 2 == 0) {
+    private setBlocks(mapInfo: number[][]) {
+        this.blocks = [];
+        for (var i = 0; i < mapInfo.length; i++) {
+            for (var j = 0; j < mapInfo[i].length; j++) {
+                if (mapInfo[i][j] == 1) {
                     this.blocks.push(new Block(new Pos(i * this.blockSize.width, j * this.blockSize.height), this));
                 }
             }
         }
+    }
+
+    public baseToCurrentScale(pos: Pos) {
+        var x = pos.x * this.blockSize.width / this.baseBlockSize.width;
+        var y = pos.y * this.blockSize.height / this.baseBlockSize.height;
+        return new Pos(x, y);
+    }
+
+    public currentToBaseScale(pos: Pos) {
+        var x = pos.x * this.baseBlockSize.width / this.blockSize.width;
+        var y = pos.y * this.baseBlockSize.height / this.blockSize.height;
+        return new Pos(x, y);
     }
     
     public update() {
@@ -57,7 +56,7 @@ class Map extends Base {
     }
 
     public draw() {
-        const ctx = this.canvas.getContext("2d");
+        const ctx = canvas.getContext("2d");
         ctx.beginPath();
         ctx.fillStyle = this.color;
         ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);
@@ -134,14 +133,14 @@ class Block extends Base {
     public color: string;
 
     constructor(pos: Pos, map: Map) {
-        super(pos, map.blockSize, true, map.canvas);
+        super(pos, map.blockSize, true);
         this.color = "#999";
     }
     
     public update() {}
 
     public draw() {
-        const ctx = this.canvas.getContext("2d");
+        const ctx = canvas.getContext("2d");
         ctx.beginPath();
         ctx.fillStyle = this.color;
         ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);

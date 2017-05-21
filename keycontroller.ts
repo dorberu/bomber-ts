@@ -1,14 +1,14 @@
 class KeyCode {
-    static SPACE : number = 32;
-    static LEFT : number = 37;
-    static UP : number = 38;
-    static RIGHT : number = 39;
-    static DOWN : number = 40;
+    static SPACE = 32;
+    static LEFT = 37;
+    static UP = 38;
+    static RIGHT = 39;
+    static DOWN = 40;
 }
 
 class EventName {
-    static DOWN : string = "keydown";
-    static UP : string   = "keyup";
+    static DOWN = "keydown";
+    static UP  = "keyup";
 }
 
 class KeyController {

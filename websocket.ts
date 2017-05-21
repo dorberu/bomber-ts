@@ -1,25 +1,41 @@
 class WebSocketClient {
+    public ws: WebSocket;
+    public handler: MessageHandler;
+
+    constructor(url: string, handler: MessageHandler) {
+        this.ws = new WebSocket(url);
+        this.handler = handler;
+    }
+
     public connect() {
-        var ws = new WebSocket('ws://localhost:8080');
-
-        ws.onopen = function() {
-            var packet = JSON.stringify({p : 123});
-            ws.send(packet);
+        var handler = this.handler;
+        this.ws.onopen = function() {
+            handler.onMessageOpen();
         };
 
-        ws.onmessage = function(e) {
-            var holder : HTMLElement = document.getElementById('holder');
-            var textnode = document.createTextNode(e.data);
-            holder.appendChild(textnode);
+        this.ws.onmessage = function(e) {
+            handler.onMessagePacket(e.data);
         };
 
-        ws.onerror = function(e) {
-            console.log("websocket error.");
+        this.ws.onerror = function(e) {
+            handler.onMessageError();
         };
 
-        ws.close = function() {
-            console.log("websocket close.");
+        this.ws.close = function() {
+            handler.onMessageClose();
         };
     }
 
+    public send(data: string) {
+        if (this.ws.readyState == WebSocket.OPEN) {
+            this.ws.send(data);
+        }
+    }
+}
+
+class MessageHandler {
+    public onMessageOpen() {}
+    public onMessagePacket(strPacket: string) {}
+    public onMessageError() {}
+    public onMessageClose() {}
 }
