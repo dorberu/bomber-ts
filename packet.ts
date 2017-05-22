@@ -13,6 +13,8 @@ abstract class Packet {
                 return new AddCharacterPacket(wsc, room);
             case MovePacket.PACKET_ID:
                 return new MovePacket(wsc, room);
+            case SetBombPacket.PACKET_ID:
+                return new SetBombPacket(wsc, room);
             default:
                 return null;
         }
@@ -145,6 +147,41 @@ class MovePacket extends Packet {
             var enemyPos = this.room.map.baseToCurrentScale(new Pos(jsonPacket.ePos[0], jsonPacket.ePos[1]));
             var enemyAdd = this.room.map.baseToCurrentScale(new Pos(jsonPacket.eAdd[0], jsonPacket.eAdd[1]));
             this.room.getEnemy(enemyId).reload(enemyPos, enemyAdd);
+        }
+    }
+}
+
+class SetBombPacket extends Packet {
+    static PACKET_ID = 5;
+
+    constructor(wsc: WebSocketClient, room: Room) {
+        super(wsc, room, SetBombPacket.PACKET_ID);
+    }
+
+    public getPacketId(): number {
+        return SetBombPacket.PACKET_ID;
+    }
+
+    public send(bombPos: Pos) {
+        if (this.room instanceof BattleRoom) {
+            var jsonPacket = {"id":this.getPacketId(),"pos":bombPos.getIntArray()};
+            this.wsc.send(JSON.stringify(jsonPacket));
+        }
+    }
+
+    public receive(strPacket: string) {
+        var jsonPacket = JSON.parse(strPacket);
+        if (this.room.phase == Room.PHASE_INIT)
+        {
+            return;
+        }
+        if (this.room instanceof BattleRoom) {
+            var result = jsonPacket.result;
+            if (result == 1) {
+                var characterId = jsonPacket.cId;
+                var bombPos = new Pos(jsonPacket.bPos[0], jsonPacket.bPos[1]);
+                this.room.map.setBomb(bombPos);
+            }
         }
     }
 }

@@ -70,7 +70,9 @@ class Player extends Character {
 
     public setBomb() {
         if (keyController.space) {
-            this.room.map.setBomb(this);
+            var blockPos = this.room.map.getBlockPos(this.pos);
+            var packet = new SetBombPacket(this.room.wsc, this.room);
+            packet.send(blockPos);
         }
     }
 }

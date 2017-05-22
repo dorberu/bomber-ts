@@ -45,6 +45,12 @@ class Map extends Base {
         var y = pos.y * this.baseBlockSize.height / this.blockSize.height;
         return new Pos(x, y);
     }
+
+    public getBlockPos(pos: Pos): Pos {
+        var x = Math.floor(pos.x / this.blockSize.width);
+        var y = Math.floor(pos.y / this.blockSize.height);
+        return new Pos(x, y);
+    }
     
     public update() {
         for (var i = 0; i < this.bombs.length; i++) {
@@ -116,16 +122,10 @@ class Map extends Base {
         return ret;
     }
 
-    public setBomb(character: Character) {
-        var x = Math.round(character.pos.x / character.size.width) * character.size.width;
-        var y = Math.round(character.pos.y / character.size.height) * character.size.height;
-        var pos = new Pos(x, y);
-        var size = new Size(character.size.width, character.size.height);
+    public setBomb(bombPos: Pos) {
+        var pos = new Pos(bombPos.x * this.blockSize.width, bombPos.y * this.blockSize.height);
         var bomb = new Bomb(pos, 3 * FPS, this.room);
-        
-        if (!this.isHit(bomb)) {
-            this.bombs.push(bomb);
-        }
+        this.bombs.push(bomb);
     }
 }
 
