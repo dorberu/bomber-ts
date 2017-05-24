@@ -21,6 +21,13 @@ abstract class Character extends Base {
         this.speed = room.map.blockSize.width / 4;
     }
 
+    public setLife(life: number) {
+        this.life = life;
+        if (this.life <= 0) {
+            this.phase = Character.PHASE_DEAD;
+        }
+    }
+
     public draw() {
         const ctx = canvas.getContext("2d");
         ctx.beginPath();
@@ -28,7 +35,7 @@ abstract class Character extends Base {
         ctx.rect(this.pos.x, this.pos.y, this.size.width, this.size.height);
         ctx.fill();
 
-        if (this.life < 1) {
+        if (this.phase == Character.PHASE_DEAD) {
             ctx.beginPath();
             ctx.fillStyle = "#f00";
             var resize = this.size.height / 3;
@@ -46,11 +53,17 @@ class Player extends Character {
     }
 
     public update() {
+        if (this.room.phase != Room.PHASE_PLAY) {
+            return;
+        }
         this.setBomb();
         this.move();
     }
 
     public move() {
+        if (this.phase != Character.PHASE_PLAY) {
+            return;
+        }
         var add = new Pos(0, 0);
         add.x -= (keyController.left) ? this.speed : 0;
         add.y -= (keyController.up) ? this.speed : 0;
@@ -69,10 +82,21 @@ class Player extends Character {
     }
 
     public setBomb() {
+        if (this.phase != Character.PHASE_PLAY) {
+            return;
+        }
         if (keyController.space) {
             var blockPos = this.room.map.getBlockPos(this.pos);
             var packet = new SetBombPacket(this.room.wsc, this.room);
             packet.send(blockPos);
+        }
+    }
+
+    public setLife(life: number) {
+        super.setLife(life);
+        if (this.phase == Character.PHASE_DEAD) {
+            var packet = new DeadPacket(this.room.wsc, this.room);
+            packet.send();
         }
     }
 }
@@ -88,6 +112,9 @@ class Enemy extends Character {
     }
 
     public update() {
+        if (this.room.phase != Room.PHASE_PLAY) {
+            return;
+        }
         this.move();
     }
 

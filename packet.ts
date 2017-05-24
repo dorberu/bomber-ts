@@ -15,6 +15,10 @@ abstract class Packet {
                 return new MovePacket(wsc, room);
             case SetBombPacket.PACKET_ID:
                 return new SetBombPacket(wsc, room);
+            case DeadPacket.PACKET_ID:
+                return new DeadPacket(wsc, room);
+            case FinishPacket.PACKET_ID:
+                return new FinishPacket(wsc, room);
             default:
                 return null;
         }
@@ -181,6 +185,67 @@ class SetBombPacket extends Packet {
                 var characterId = jsonPacket.cId;
                 var bombPos = new Pos(jsonPacket.bPos[0], jsonPacket.bPos[1]);
                 this.room.map.setBomb(bombPos);
+            }
+        }
+    }
+}
+
+class DeadPacket extends Packet {
+    static PACKET_ID = 6;
+
+    constructor(wsc: WebSocketClient, room: Room) {
+        super(wsc, room, DeadPacket.PACKET_ID);
+    }
+
+    public getPacketId(): number {
+        return DeadPacket.PACKET_ID;
+    }
+
+    public send() {
+        if (this.room instanceof BattleRoom) {
+            var jsonPacket = {"id":this.getPacketId()};
+            this.wsc.send(JSON.stringify(jsonPacket));
+        }
+    }
+
+    public receive(strPacket: string) {
+        var jsonPacket = JSON.parse(strPacket);
+        if (this.room.phase == Room.PHASE_INIT)
+        {
+            return;
+        }
+        if (this.room instanceof BattleRoom) {
+            var enemyId = jsonPacket.eId;
+            this.room.getEnemy(enemyId).setLife(0);
+        }
+    }
+}
+
+class FinishPacket extends Packet {
+    static PACKET_ID = 7;
+
+    constructor(wsc: WebSocketClient, room: Room) {
+        super(wsc, room, FinishPacket.PACKET_ID);
+    }
+
+    public getPacketId(): number {
+        return FinishPacket.PACKET_ID;
+    }
+
+    public receive(strPacket: string) {
+        var jsonPacket = JSON.parse(strPacket);
+        if (this.room.phase == Room.PHASE_INIT)
+        {
+            return;
+        }
+        if (this.room instanceof BattleRoom) {
+            var characterId = jsonPacket.cId;
+            if (characterId == 0) {
+                this.room.drawPhase();
+            } else if (characterId == this.room.player.id) {
+                this.room.winPhase();
+            } else {
+                this.room.losePhase();
             }
         }
     }

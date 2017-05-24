@@ -1,7 +1,10 @@
 class Room implements MessageHandler{
     public static PHASE_INIT = 1;
     public static PHASE_PLAY = 2;
-    public static PHASE_CLOSE = 3;
+    public static PHASE_WIN = 3;
+    public static PHASE_LOSE = 4;
+    public static PHASE_DRAW = 5;
+    public static PHASE_CLOSE = 6;
 
     public phase: number;
     public wsc: WebSocketClient;
@@ -85,6 +88,18 @@ class BattleRoom extends Room {
         }
     }
 
+    public winPhase() {
+        this.phase = Room.PHASE_WIN;
+    }
+
+    public losePhase() {
+        this.phase = Room.PHASE_LOSE;
+    }
+
+    public drawPhase() {
+        this.phase = Room.PHASE_DRAW;
+    }
+
     public draw() {
         if (this.phase == Room.PHASE_INIT) {
             return;
@@ -93,6 +108,26 @@ class BattleRoom extends Room {
         this.player.draw();
         for (var i = 0; i < this.enemies.length; i++) {
             this.enemies[i].draw();
+        }
+
+        if (this.phase == Room.PHASE_WIN) {
+            const ctx = canvas.getContext("2d");
+            ctx.beginPath();
+            ctx.font = "18px 'ＭＳ Ｐゴシック'";
+            ctx.strokeStyle = "orange";
+            ctx.strokeText("YOU WIN!", 10, 25);
+        } else if (this.phase == Room.PHASE_LOSE) {
+            const ctx = canvas.getContext("2d");
+            ctx.beginPath();
+            ctx.font = "18px 'ＭＳ Ｐゴシック'";
+            ctx.strokeStyle = "blue";
+            ctx.strokeText("Lose.", 10, 25);
+        } else if (this.phase == Room.PHASE_DRAW) {
+            const ctx = canvas.getContext("2d");
+            ctx.beginPath();
+            ctx.font = "18px 'ＭＳ Ｐゴシック'";
+            ctx.strokeStyle = "black";
+            ctx.strokeText("- Draw -", 10, 25);
         }
     }
 }

@@ -10,6 +10,12 @@ class Pos {
     public getIntArray(): number[] {
         return [ this.x, this.y ];
     }
+
+    public equals(target: Pos) {
+        if (this.x != target.x) return false;
+        if (this.y != target.y) return false;
+        return true;
+    }
 }
 
 class Size {
@@ -23,6 +29,12 @@ class Size {
 
     public getIntArray(): number[] {
         return [ this.width, this.height ];
+    }
+
+    public equals(target: Size) {
+        if (this.width != target.width) return false;
+        if (this.height != target.height) return false;
+        return true;
     }
 }
 

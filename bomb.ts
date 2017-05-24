@@ -117,11 +117,11 @@ class Fire extends Base {
             }
             for (var i = 0; i < this.room.enemies.length; i++) {
                 if (this.isHit(this.room.enemies[i])) {
-                    this.room.enemies[i].life = Math.max(--this.room.enemies[i].life, 0);
+                    this.room.enemies[i].setLife(Math.max(--this.room.enemies[i].life, 0));
                 }
             }
             if (this.isHit(this.room.player)) {
-                this.room.player.life = Math.max(--this.room.player.life, 0);
+                this.room.player.setLife(Math.max(--this.room.player.life, 0));
             }
         }
     }
