@@ -46,9 +46,14 @@ abstract class Character extends Base {
 }
 
 class Player extends Character {
+    private beforePos: Pos;
+    private beforeAdd: Pos;
+
     constructor(room: BattleRoom, id: number, pos: Pos) {
         super(room, id, pos);
         this.color = "#00f";
+        this.beforePos = new Pos(0, 0);
+        this.beforeAdd = new Pos(0, 0);
         this.phase = Character.PHASE_PLAY;
     }
 
@@ -76,6 +81,12 @@ class Player extends Character {
         }
         this.pos.x += add.x;
         this.pos.y += add.y;
+
+        if (this.beforePos.equals(this.pos) && this.beforeAdd.equals(add)) {
+            return;
+        }
+        this.beforePos = this.pos;
+        this.beforeAdd = add;
 
         var packet = new MovePacket(this.room.wsc, this.room);
         packet.send(this.pos, add);
