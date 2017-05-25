@@ -104,6 +104,9 @@ class Player extends Character {
     }
 
     public setLife(life: number) {
+        if (this.phase != Character.PHASE_PLAY) {
+            return;
+        }
         super.setLife(life);
         if (this.phase == Character.PHASE_DEAD) {
             var packet = new DeadPacket(this.room.wsc, this.room);

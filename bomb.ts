@@ -115,6 +115,9 @@ class Fire extends Base {
             if (this.rest <= 0) {
                 this.isKill = true;
             }
+            if (this.room.phase != Room.PHASE_PLAY) {
+                return;
+            }
             for (var i = 0; i < this.room.enemies.length; i++) {
                 if (this.isHit(this.room.enemies[i])) {
                     this.room.enemies[i].setLife(Math.max(--this.room.enemies[i].life, 0));
