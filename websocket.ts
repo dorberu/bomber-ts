@@ -1,37 +1,39 @@
 class WebSocketClient {
-    public ws: WebSocket;
-    public handler: MessageHandler;
+    private webSocket: WebSocket;
+    private handler: MessageHandler;
 
     constructor(url: string, handler: MessageHandler) {
-        this.ws = new WebSocket(url);
+        this.webSocket = new WebSocket(url);
         this.handler = handler;
     }
 
     public connect() {
         var handler = this.handler;
-        this.ws.onopen = function() {
+        this.webSocket.onopen = function() {
             handler.onMessageOpen();
         };
 
-        this.ws.onmessage = function(e) {
+        this.webSocket.onmessage = function(e) {
             handler.onMessagePacket(e.data);
         };
 
-        this.ws.onerror = function(e) {
+        this.webSocket.onerror = function(e) {
             handler.onMessageError();
         };
 
-        this.ws.close = function() {
+        this.webSocket.close = function() {
             handler.onMessageClose();
         };
     }
 
     public send(data: string) {
-        if (this.ws.readyState == WebSocket.OPEN) {
-            this.ws.send(data);
+        if (this.webSocket.readyState == WebSocket.OPEN) {
+            this.webSocket.send(data);
         }
     }
 }
+
+var webSocketClient: WebSocketClient;
 
 class MessageHandler {
     public onMessageOpen() {}

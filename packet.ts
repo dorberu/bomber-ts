@@ -3,33 +3,31 @@ abstract class Packet {
         return JSON.parse(strPacket).id;
     }
 
-    public static getPacket(wsc: WebSocketClient, room: Room, id: number): Packet {
+    public static getPacket(room: Room, id: number): Packet {
         switch (id) {
             case LoginPacket.PACKET_ID:
-                return new LoginPacket(wsc, room);
+                return new LoginPacket(room);
             case LogoutPacket.PACKET_ID:
-                return new LogoutPacket(wsc, room);
+                return new LogoutPacket(room);
             case AddCharacterPacket.PACKET_ID:
-                return new AddCharacterPacket(wsc, room);
+                return new AddCharacterPacket(room);
             case MovePacket.PACKET_ID:
-                return new MovePacket(wsc, room);
+                return new MovePacket(room);
             case SetBombPacket.PACKET_ID:
-                return new SetBombPacket(wsc, room);
+                return new SetBombPacket(room);
             case DeadPacket.PACKET_ID:
-                return new DeadPacket(wsc, room);
+                return new DeadPacket(room);
             case FinishPacket.PACKET_ID:
-                return new FinishPacket(wsc, room);
+                return new FinishPacket(room);
             default:
                 return null;
         }
     }
 
-    protected wsc: WebSocketClient;
     protected room: Room;
     public id: number;
 
-    constructor(wsc: WebSocketClient, room: Room, id: number) {
-        this.wsc = wsc;
+    constructor(room: Room, id: number) {
         this.room = room;
         this.id = id;
     }
@@ -41,8 +39,8 @@ abstract class Packet {
 class LoginPacket extends Packet {
     static PACKET_ID = 1;
 
-    constructor(wsc: WebSocketClient, room: Room) {
-        super(wsc, room, LoginPacket.PACKET_ID);
+    constructor(room: Room) {
+        super(room, LoginPacket.PACKET_ID);
     }
 
     public getPacketId(): number {
@@ -70,15 +68,15 @@ class LoginPacket extends Packet {
     
     public send() {
         var jsonPacket = {"id":this.getPacketId()};
-        this.wsc.send(JSON.stringify(jsonPacket));
+        webSocketClient.send(JSON.stringify(jsonPacket));
     }
 }
 
 class LogoutPacket extends Packet {
     static PACKET_ID = 2;
 
-    constructor(wsc: WebSocketClient, room: Room) {
-        super(wsc, room, LogoutPacket.PACKET_ID);
+    constructor(room: Room) {
+        super(room, LogoutPacket.PACKET_ID);
     }
 
     public getPacketId(): number {
@@ -91,15 +89,15 @@ class LogoutPacket extends Packet {
     
     public send() {
         var jsonPacket = {"id":this.getPacketId()};
-        this.wsc.send(JSON.stringify(jsonPacket));
+        webSocketClient.send(JSON.stringify(jsonPacket));
     }
 }
 
 class AddCharacterPacket extends Packet {
     static PACKET_ID = 3;
 
-    constructor(wsc: WebSocketClient, room: Room) {
-        super(wsc, room, AddCharacterPacket.PACKET_ID);
+    constructor(room: Room) {
+        super(room, AddCharacterPacket.PACKET_ID);
     }
 
     public getPacketId(): number {
@@ -123,8 +121,8 @@ class AddCharacterPacket extends Packet {
 class MovePacket extends Packet {
     static PACKET_ID = 4;
 
-    constructor(wsc: WebSocketClient, room: Room) {
-        super(wsc, room, MovePacket.PACKET_ID);
+    constructor(room: Room) {
+        super(room, MovePacket.PACKET_ID);
     }
 
     public getPacketId(): number {
@@ -136,7 +134,7 @@ class MovePacket extends Packet {
             var basePos = this.room.map.currentToBaseScale(pos);
             var baseAdd = this.room.map.currentToBaseScale(add);
             var jsonPacket = {"id":this.getPacketId(),"pos":basePos.getIntArray(),"add":baseAdd.getIntArray()};
-            this.wsc.send(JSON.stringify(jsonPacket));
+            webSocketClient.send(JSON.stringify(jsonPacket));
         }
     }
 
@@ -158,8 +156,8 @@ class MovePacket extends Packet {
 class SetBombPacket extends Packet {
     static PACKET_ID = 5;
 
-    constructor(wsc: WebSocketClient, room: Room) {
-        super(wsc, room, SetBombPacket.PACKET_ID);
+    constructor(room: Room) {
+        super(room, SetBombPacket.PACKET_ID);
     }
 
     public getPacketId(): number {
@@ -169,7 +167,7 @@ class SetBombPacket extends Packet {
     public send(bombPos: Pos) {
         if (this.room instanceof BattleRoom) {
             var jsonPacket = {"id":this.getPacketId(),"pos":bombPos.getIntArray()};
-            this.wsc.send(JSON.stringify(jsonPacket));
+            webSocketClient.send(JSON.stringify(jsonPacket));
         }
     }
 
@@ -193,8 +191,8 @@ class SetBombPacket extends Packet {
 class DeadPacket extends Packet {
     static PACKET_ID = 6;
 
-    constructor(wsc: WebSocketClient, room: Room) {
-        super(wsc, room, DeadPacket.PACKET_ID);
+    constructor(room: Room) {
+        super(room, DeadPacket.PACKET_ID);
     }
 
     public getPacketId(): number {
@@ -204,7 +202,7 @@ class DeadPacket extends Packet {
     public send() {
         if (this.room instanceof BattleRoom) {
             var jsonPacket = {"id":this.getPacketId()};
-            this.wsc.send(JSON.stringify(jsonPacket));
+            webSocketClient.send(JSON.stringify(jsonPacket));
         }
     }
 
@@ -224,8 +222,8 @@ class DeadPacket extends Packet {
 class FinishPacket extends Packet {
     static PACKET_ID = 7;
 
-    constructor(wsc: WebSocketClient, room: Room) {
-        super(wsc, room, FinishPacket.PACKET_ID);
+    constructor(room: Room) {
+        super(room, FinishPacket.PACKET_ID);
     }
 
     public getPacketId(): number {

@@ -7,23 +7,23 @@ class Room implements MessageHandler{
     public static PHASE_CLOSE = 6;
 
     public phase: number;
-    public wsc: WebSocketClient;
 
     constructor () {
         this.phase = Room.PHASE_INIT;
-        this.wsc = new WebSocketClient('ws://localhost:8080', this);
-        this.wsc.connect();
+        keyController = new KeyController();
+        webSocketClient = new WebSocketClient('ws://localhost:8080', this);
+        webSocketClient.connect();
     }
 
     public onMessageOpen() {
-        var loginPacket = new LoginPacket(this.wsc, this);
+        var loginPacket = new LoginPacket(this);
         loginPacket.send();
         console.log("websocket open.");
     }
 
     public onMessagePacket(strPacket: string) {
         var packetId = Packet.parsePacketId(strPacket);
-        var packet = Packet.getPacket(this.wsc, this, packetId);
+        var packet = Packet.getPacket(this, packetId);
         console.log("websocket message: " + strPacket);
         if (packet != null) {
             packet.receive(strPacket);

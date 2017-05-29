@@ -1,5 +1,3 @@
-const FPS = 30;
-
 var field: HTMLElement;
 var canvas: HTMLCanvasElement;
 
@@ -13,7 +11,6 @@ function init() {
     canvas.height = size;
     field.appendChild(canvas);
 
-    keyController = new KeyController();
     room = new BattleRoom();
 }
 

@@ -88,7 +88,7 @@ class Player extends Character {
         this.beforePos = this.pos;
         this.beforeAdd = add;
 
-        var packet = new MovePacket(this.room.wsc, this.room);
+        var packet = new MovePacket(this.room);
         packet.send(this.pos, add);
     }
 
@@ -98,7 +98,7 @@ class Player extends Character {
         }
         if (keyController.space) {
             var blockPos = this.room.map.getBlockPos(this.pos);
-            var packet = new SetBombPacket(this.room.wsc, this.room);
+            var packet = new SetBombPacket(this.room);
             packet.send(blockPos);
         }
     }
@@ -109,7 +109,7 @@ class Player extends Character {
         }
         super.setLife(life);
         if (this.phase == Character.PHASE_DEAD) {
-            var packet = new DeadPacket(this.room.wsc, this.room);
+            var packet = new DeadPacket(this.room);
             packet.send();
         }
     }
