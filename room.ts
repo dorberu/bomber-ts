@@ -1,30 +1,16 @@
-class Room implements MessageHandler{
-    public static PHASE_INIT = 1;
-    public static PHASE_PLAY = 2;
-    public static PHASE_WIN = 3;
-    public static PHASE_LOSE = 4;
-    public static PHASE_DRAW = 5;
-    public static PHASE_CLOSE = 6;
-
-    public phase: number;
-
+class Room implements MessageHandler {
     constructor () {
-        this.phase = Room.PHASE_INIT;
         keyController = new KeyController();
-        webSocketClient = new WebSocketClient('ws://localhost:8080', this);
-        webSocketClient.connect();
     }
 
     public onMessageOpen() {
-        var loginPacket = new LoginPacket(this);
-        loginPacket.send();
         console.log("websocket open.");
     }
 
     public onMessagePacket(strPacket: string) {
+        console.log("websocket message: " + strPacket);
         var packetId = Packet.parsePacketId(strPacket);
         var packet = Packet.getPacket(this, packetId);
-        console.log("websocket message: " + strPacket);
         if (packet != null) {
             packet.receive(strPacket);
         } else {
@@ -42,6 +28,29 @@ class Room implements MessageHandler{
 }
 
 class BattleRoom extends Room {
+    public static PHASE_INIT = 1;
+    public static PHASE_PLAY = 2;
+    public static PHASE_WIN = 3;
+    public static PHASE_LOSE = 4;
+    public static PHASE_DRAW = 5;
+    public static PHASE_CLOSE = 6;
+
+    public phase: number;
+
+    constructor () {
+        super();
+        this.phase = BattleRoom.PHASE_INIT;
+        keyController = new KeyController();
+        webSocketClient = new WebSocketClient('ws://localhost:8080', this);
+        webSocketClient.connect();
+    }
+
+    public onMessageOpen() {
+        super.onMessageOpen();
+        var loginPacket = new LoginPacket(this);
+        loginPacket.send();
+    }
+
     public map: Map;
     public enemies: Enemy[];
     public player: Player;
@@ -59,11 +68,11 @@ class BattleRoom extends Room {
             var ePos = this.map.baseToCurrentScale(new Pos(enemyPoss[i][0], enemyPoss[i][1]));
             this.addEnemy(enemyIds[i], ePos);
         }
-        this.phase = Room.PHASE_PLAY;
+        this.phase = BattleRoom.PHASE_PLAY;
     }
 
     public update() {
-        if (this.phase == Room.PHASE_INIT) {
+        if (this.phase == BattleRoom.PHASE_INIT) {
             return;
         }
         this.map.update();
@@ -88,20 +97,8 @@ class BattleRoom extends Room {
         }
     }
 
-    public winPhase() {
-        this.phase = Room.PHASE_WIN;
-    }
-
-    public losePhase() {
-        this.phase = Room.PHASE_LOSE;
-    }
-
-    public drawPhase() {
-        this.phase = Room.PHASE_DRAW;
-    }
-
     public draw() {
-        if (this.phase == Room.PHASE_INIT) {
+        if (this.phase == BattleRoom.PHASE_INIT) {
             return;
         }
         this.map.draw();
@@ -110,19 +107,19 @@ class BattleRoom extends Room {
             this.enemies[i].draw();
         }
 
-        if (this.phase == Room.PHASE_WIN) {
+        if (this.phase == BattleRoom.PHASE_WIN) {
             const ctx = canvas.getContext("2d");
             ctx.beginPath();
             ctx.font = "18px 'ＭＳ Ｐゴシック'";
             ctx.strokeStyle = "orange";
             ctx.strokeText("YOU WIN!", 10, 25);
-        } else if (this.phase == Room.PHASE_LOSE) {
+        } else if (this.phase == BattleRoom.PHASE_LOSE) {
             const ctx = canvas.getContext("2d");
             ctx.beginPath();
             ctx.font = "18px 'ＭＳ Ｐゴシック'";
             ctx.strokeStyle = "blue";
             ctx.strokeText("Lose.", 10, 25);
-        } else if (this.phase == Room.PHASE_DRAW) {
+        } else if (this.phase == BattleRoom.PHASE_DRAW) {
             const ctx = canvas.getContext("2d");
             ctx.beginPath();
             ctx.font = "18px 'ＭＳ Ｐゴシック'";

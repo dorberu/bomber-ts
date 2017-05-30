@@ -115,7 +115,7 @@ class Fire extends Base {
             if (this.rest <= 0) {
                 this.isKill = true;
             }
-            if (this.room.phase != Room.PHASE_PLAY) {
+            if (this.room.phase != BattleRoom.PHASE_PLAY) {
                 return;
             }
             for (var i = 0; i < this.room.enemies.length; i++) {

@@ -58,7 +58,7 @@ class Player extends Character {
     }
 
     public update() {
-        if (this.room.phase != Room.PHASE_PLAY) {
+        if (this.room.phase != BattleRoom.PHASE_PLAY) {
             return;
         }
         this.setBomb();
@@ -126,7 +126,7 @@ class Enemy extends Character {
     }
 
     public update() {
-        if (this.room.phase != Room.PHASE_PLAY) {
+        if (this.room.phase != BattleRoom.PHASE_PLAY) {
             return;
         }
         this.move();

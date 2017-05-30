@@ -6,29 +6,27 @@ abstract class Packet {
     public static getPacket(room: Room, id: number): Packet {
         switch (id) {
             case LoginPacket.PACKET_ID:
-                return new LoginPacket(room);
+                return new LoginPacket(room as BattleRoom);
             case LogoutPacket.PACKET_ID:
-                return new LogoutPacket(room);
+                return new LogoutPacket(room as BattleRoom);
             case AddCharacterPacket.PACKET_ID:
-                return new AddCharacterPacket(room);
+                return new AddCharacterPacket(room as BattleRoom);
             case MovePacket.PACKET_ID:
-                return new MovePacket(room);
+                return new MovePacket(room as BattleRoom);
             case SetBombPacket.PACKET_ID:
-                return new SetBombPacket(room);
+                return new SetBombPacket(room as BattleRoom);
             case DeadPacket.PACKET_ID:
-                return new DeadPacket(room);
+                return new DeadPacket(room as BattleRoom);
             case FinishPacket.PACKET_ID:
-                return new FinishPacket(room);
+                return new FinishPacket(room as BattleRoom);
             default:
                 return null;
         }
     }
 
-    protected room: Room;
     public id: number;
 
-    constructor(room: Room, id: number) {
-        this.room = room;
+    constructor(id: number) {
         this.id = id;
     }
 
@@ -38,9 +36,11 @@ abstract class Packet {
 
 class LoginPacket extends Packet {
     static PACKET_ID = 1;
+    public room: BattleRoom;
 
-    constructor(room: Room) {
-        super(room, LoginPacket.PACKET_ID);
+    constructor(room: BattleRoom) {
+        super(LoginPacket.PACKET_ID);
+        this.room = room;
     }
 
     public getPacketId(): number {
@@ -49,21 +49,19 @@ class LoginPacket extends Packet {
 
     public receive(strPacket: string) {
         var jsonPacket = JSON.parse(strPacket);
-        if (this.room.phase != Room.PHASE_INIT || jsonPacket.result == 0)
+        if (this.room.phase != BattleRoom.PHASE_INIT || jsonPacket.result == 0)
         {
             return;
         }
-        if (this.room instanceof BattleRoom) {
-            var baseBlockSize = new Size(jsonPacket.bSize[0], jsonPacket.bSize[1]);
-            var blockNum = new Size(jsonPacket.bNum[0], jsonPacket.bNum[1]);
-            var mapInfo: number[][] = jsonPacket.mapInfo;
-            this.room.init(baseBlockSize, blockNum, mapInfo);
-            var playerId: number = jsonPacket.pId;
-            var playerPos: number[] = jsonPacket.pPos;
-            var enemyIds: number[] = jsonPacket.eIds;
-            var enemyPoss: number[][] = jsonPacket.ePoss;
-            this.room.setCharacter(playerId, playerPos, enemyIds, enemyPoss);
-        }
+        var baseBlockSize = new Size(jsonPacket.bSize[0], jsonPacket.bSize[1]);
+        var blockNum = new Size(jsonPacket.bNum[0], jsonPacket.bNum[1]);
+        var mapInfo: number[][] = jsonPacket.mapInfo;
+        this.room.init(baseBlockSize, blockNum, mapInfo);
+        var playerId: number = jsonPacket.pId;
+        var playerPos: number[] = jsonPacket.pPos;
+        var enemyIds: number[] = jsonPacket.eIds;
+        var enemyPoss: number[][] = jsonPacket.ePoss;
+        this.room.setCharacter(playerId, playerPos, enemyIds, enemyPoss);
     }
     
     public send() {
@@ -74,9 +72,11 @@ class LoginPacket extends Packet {
 
 class LogoutPacket extends Packet {
     static PACKET_ID = 2;
+    public room: BattleRoom;
 
-    constructor(room: Room) {
-        super(room, LogoutPacket.PACKET_ID);
+    constructor(room: BattleRoom) {
+        super(LogoutPacket.PACKET_ID);
+        this.room = room;
     }
 
     public getPacketId(): number {
@@ -95,9 +95,11 @@ class LogoutPacket extends Packet {
 
 class AddCharacterPacket extends Packet {
     static PACKET_ID = 3;
+    public room: BattleRoom;
 
-    constructor(room: Room) {
-        super(room, AddCharacterPacket.PACKET_ID);
+    constructor(room: BattleRoom) {
+        super(AddCharacterPacket.PACKET_ID);
+        this.room = room;
     }
 
     public getPacketId(): number {
@@ -106,23 +108,23 @@ class AddCharacterPacket extends Packet {
 
     public receive(strPacket: string) {
         var jsonPacket = JSON.parse(strPacket);
-        if (this.room.phase == Room.PHASE_INIT)
+        if (this.room.phase == BattleRoom.PHASE_INIT)
         {
             return;
         }
-        if (this.room instanceof BattleRoom) {
-            var enemyId = jsonPacket.eId;
-            var enemyPos = this.room.map.baseToCurrentScale(new Pos(jsonPacket.ePos[0], jsonPacket.ePos[1]));
-            this.room.addEnemy(enemyId, enemyPos);
-        }
+        var enemyId = jsonPacket.eId;
+        var enemyPos = this.room.map.baseToCurrentScale(new Pos(jsonPacket.ePos[0], jsonPacket.ePos[1]));
+        this.room.addEnemy(enemyId, enemyPos);
     }
 }
 
 class MovePacket extends Packet {
     static PACKET_ID = 4;
+    public room: BattleRoom;
 
-    constructor(room: Room) {
-        super(room, MovePacket.PACKET_ID);
+    constructor(room: BattleRoom) {
+        super(MovePacket.PACKET_ID);
+        this.room = room;
     }
 
     public getPacketId(): number {
@@ -140,24 +142,24 @@ class MovePacket extends Packet {
 
     public receive(strPacket: string) {
         var jsonPacket = JSON.parse(strPacket);
-        if (this.room.phase == Room.PHASE_INIT)
+        if (this.room.phase == BattleRoom.PHASE_INIT)
         {
             return;
         }
-        if (this.room instanceof BattleRoom) {
-            var enemyId = jsonPacket.eId;
-            var enemyPos = this.room.map.baseToCurrentScale(new Pos(jsonPacket.ePos[0], jsonPacket.ePos[1]));
-            var enemyAdd = this.room.map.baseToCurrentScale(new Pos(jsonPacket.eAdd[0], jsonPacket.eAdd[1]));
-            this.room.getEnemy(enemyId).reload(enemyPos, enemyAdd);
-        }
+        var enemyId = jsonPacket.eId;
+        var enemyPos = this.room.map.baseToCurrentScale(new Pos(jsonPacket.ePos[0], jsonPacket.ePos[1]));
+        var enemyAdd = this.room.map.baseToCurrentScale(new Pos(jsonPacket.eAdd[0], jsonPacket.eAdd[1]));
+        this.room.getEnemy(enemyId).reload(enemyPos, enemyAdd);
     }
 }
 
 class SetBombPacket extends Packet {
     static PACKET_ID = 5;
+    public room: BattleRoom;
 
-    constructor(room: Room) {
-        super(room, SetBombPacket.PACKET_ID);
+    constructor(room: BattleRoom) {
+        super(SetBombPacket.PACKET_ID);
+        this.room = room;
     }
 
     public getPacketId(): number {
@@ -173,26 +175,26 @@ class SetBombPacket extends Packet {
 
     public receive(strPacket: string) {
         var jsonPacket = JSON.parse(strPacket);
-        if (this.room.phase == Room.PHASE_INIT)
+        if (this.room.phase == BattleRoom.PHASE_INIT)
         {
             return;
         }
-        if (this.room instanceof BattleRoom) {
-            var result = jsonPacket.result;
-            if (result == 1) {
-                var characterId = jsonPacket.cId;
-                var bombPos = new Pos(jsonPacket.bPos[0], jsonPacket.bPos[1]);
-                this.room.map.setBomb(bombPos);
-            }
+        var result = jsonPacket.result;
+        if (result == 1) {
+            var characterId = jsonPacket.cId;
+            var bombPos = new Pos(jsonPacket.bPos[0], jsonPacket.bPos[1]);
+            this.room.map.setBomb(bombPos);
         }
     }
 }
 
 class DeadPacket extends Packet {
     static PACKET_ID = 6;
+    public room: BattleRoom;
 
-    constructor(room: Room) {
-        super(room, DeadPacket.PACKET_ID);
+    constructor(room: BattleRoom) {
+        super(DeadPacket.PACKET_ID);
+        this.room = room;
     }
 
     public getPacketId(): number {
@@ -208,22 +210,22 @@ class DeadPacket extends Packet {
 
     public receive(strPacket: string) {
         var jsonPacket = JSON.parse(strPacket);
-        if (this.room.phase == Room.PHASE_INIT)
+        if (this.room.phase == BattleRoom.PHASE_INIT)
         {
             return;
         }
-        if (this.room instanceof BattleRoom) {
-            var enemyId = jsonPacket.eId;
-            this.room.getEnemy(enemyId).setLife(0);
-        }
+        var enemyId = jsonPacket.eId;
+        this.room.getEnemy(enemyId).setLife(0);
     }
 }
 
 class FinishPacket extends Packet {
     static PACKET_ID = 7;
+    public room: BattleRoom;
 
-    constructor(room: Room) {
-        super(room, FinishPacket.PACKET_ID);
+    constructor(room: BattleRoom) {
+        super(FinishPacket.PACKET_ID);
+        this.room = room;
     }
 
     public getPacketId(): number {
@@ -232,19 +234,17 @@ class FinishPacket extends Packet {
 
     public receive(strPacket: string) {
         var jsonPacket = JSON.parse(strPacket);
-        if (this.room.phase == Room.PHASE_INIT)
+        if (this.room.phase == BattleRoom.PHASE_INIT)
         {
             return;
         }
-        if (this.room instanceof BattleRoom) {
-            var characterId = jsonPacket.cId;
-            if (characterId == 0) {
-                this.room.drawPhase();
-            } else if (characterId == this.room.player.id) {
-                this.room.winPhase();
-            } else {
-                this.room.losePhase();
-            }
+        var characterId = jsonPacket.cId;
+        if (characterId == 0) {
+            this.room.phase = BattleRoom.PHASE_DRAW;
+        } else if (characterId == this.room.player.id) {
+            this.room.phase = BattleRoom.PHASE_WIN;
+        } else {
+            this.room.phase = BattleRoom.PHASE_LOSE;
         }
     }
 }
